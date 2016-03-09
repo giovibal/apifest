@@ -8,4 +8,9 @@ target/*
 */target/*
 */test-output/*
 *.log
+.idea
+*.iml
 
+# Local configuration
+mappings
+apifest*.properties
