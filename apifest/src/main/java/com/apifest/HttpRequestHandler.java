@@ -22,12 +22,7 @@ import java.util.Map;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.DefaultHttpRequest;
 import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
 import org.jboss.netty.handler.codec.http.HttpHeaders;
@@ -79,6 +74,9 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
         Object message = e.getMessage();
         if (message instanceof HttpRequest) {
             HttpRequest req = (HttpRequest) message;
+
+            log.info(req.getProtocolVersion() +" "+ req.getMethod() +" "+ req.getUri());
+
             LifecycleEventHandlers.invokeRequestEventHandlers(req, null);
             String uri = req.getUri();
             HttpMethod method = req.getMethod();
@@ -329,5 +327,11 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
         ChannelFuture future = channel.write(response);
         future.addListener(ChannelFutureListener.CLOSE);
 
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        log.error(e.getCause().getMessage(), e.getCause());
+        ctx.sendUpstream(e);
     }
 }
